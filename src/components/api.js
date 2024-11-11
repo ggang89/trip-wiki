@@ -27,6 +27,7 @@ export const request = async (startIdx, region, sortBy, searchWord) => {
     const response = await fetch(url);
     if (response) {
       let data = await response.json();
+      console.log(data)
       return data;
     }
   } catch (e) {
