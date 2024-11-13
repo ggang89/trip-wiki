@@ -3,7 +3,8 @@ export default function RegionList({ $app, initialState, handleRegion }) {
    this.$target = document.createElement("div");
    this.$target.className = "region-list";
 
-   this.handleRegion = handleRegion;
+  this.handleRegion = handleRegion;
+  
    $app.appendChild(this.$target);
 
   this.template = () => {
@@ -20,7 +21,7 @@ export default function RegionList({ $app, initialState, handleRegion }) {
     let temp = ``;
     regionList.forEach((elm) => {
       let regionId = elm.split(" ")[1]; //이모지 제외한 지역명 추출
-      temp += `<div id=${regionId}>${elm}</div>`;
+      temp += `<div id="${regionId}">${elm}</div>`;
     });
     return temp;
   };
@@ -40,6 +41,7 @@ export default function RegionList({ $app, initialState, handleRegion }) {
     const $regionList = this.$target.querySelectorAll("div");
     $regionList.forEach((elm) => {
       elm.addEventListener("click", () => {
+      
         this.handleRegion(elm.id);
       });
     });
