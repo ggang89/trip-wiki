@@ -15,7 +15,7 @@ app.use(express.static(path.join(__dirname, "..")));
 
 //모든 요청에 동일한 index.html객체 반환
 app.get("/*", (req, res) => {
-  res.sendFile(path.join(__dirname, "", "index.html"));
+  res.sendFile(path.join(__dirname, "..", "index.html"));
 });
 
 app.listen(PORT, () => {
