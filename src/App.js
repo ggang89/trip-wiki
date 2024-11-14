@@ -3,7 +3,7 @@ import CityList from "./components/CityList.js";
 import Header from "./components/Header.js";
 import RegionList from "./components/RegionList.js";
 
-import { request } from "./components/api.js";
+import { request, requestCityDetail } from "./components/api.js";
 
 export default function App($app) {
   const getSortBy = () => {
@@ -24,7 +24,7 @@ export default function App($app) {
     startIdx: 0,
     sortBy: getSortBy(),
     searchWord: getSearchWord(),
-    region: "",
+    region: window.location.pathname.replace('/',''),
     cities: "",
     currentPage: window.location.pathname,
   };
@@ -33,6 +33,7 @@ export default function App($app) {
     new Header({
       $app,
       initialState: {
+        currentPage: this.state.currentPage,
         sortBy: this.state.sortBy,
         searchWord: this.state.searchWord,
       },
@@ -93,30 +94,38 @@ export default function App($app) {
     });
   }
 
-  const renderRegionList = () => {
-    new RegionList({
-      $app,
-      initialState: this.state.region,
-      handleRegion: async (region) => {
-        history.pushState(null, null, `/${region}?sort=total`);
-        const cities = await request(0, region, "total");
-        this.setState({
-          ...this.state,
-          startIdx: 0,
-          sortBy: "total",
-          region: region,
-          cities: cities,
-          searchWord: "",
-        });
-      },
-    });
-  }
+   const renderRegionList = () => {
+     new RegionList({
+       $app,
+       initialState: this.state.region,
+       handleRegion: async (region) => {
+         history.pushState(null, null, `/${region}?sort=total`);
+         const cities = await request(0, region, "total");
+         this.setState({
+           ...this.state,
+           startIdx: 0,
+           sortBy: "total",
+           region: region,
+           cities: cities,
+           searchWord: "",
+           currentPage: `/${region}`,
+         });
+       },
+     });
+   };
 
 
   const renderCityList = () => {
     new CityList({
       $app,
       initialState: this.state.cities,
+      handleItemClick: async (id) => {
+        history.pushState(null, null, `/city/${id}`);
+        this.setState({
+          ...this.state,
+          currentPage: `/city/${id}`,
+        });
+      },
       handleLoadMore: async () => {
         //누르면 40개 데이터 더 불러오기
         const newStartIdx = this.state.startIdx + 40;
@@ -124,7 +133,7 @@ export default function App($app) {
           newStartIdx,
           this.state.region,
           this.state.sortBy,
-          this.state.searchWord
+    
         );
 
         this.setState({
@@ -136,18 +145,17 @@ export default function App($app) {
           },
         });
       },
-      handleItemClick: (id) => {
-        history.pushState(null, null, `/city/${id}`)
-        this.setState({
-          ...this.state,
-          currentPage: `/city/${id}`,
-        });
-      },
     });
   };
 
-  const renderCityDetail = () => {
-    new CityDetail();
+  const renderCityDetail = async(cityId) => {
+    try {
+      const cityDetailData = await requestCityDetail(cityId);
+       new CityDetail({$app,initialState:cityDetailData});
+    } catch (error) {
+      console.log(error)
+    }
+   
   } 
 
   this.setState = (newState) => {
@@ -158,15 +166,17 @@ export default function App($app) {
   const render = () => {
     const path = this.state.currentPage;
     $app.innerHtml = '';
+    //상세페이지로 이동
     if (path.startsWith('/city/')) {
+      const cityId = path.split('/city/')[1];
       renderHeader();
-      renderCityDetail();
+      renderCityDetail(cityId);
     } else {
       renderHeader();
       renderRegionList();
       renderCityList();
     }
-  }
+  };
 
   window.addEventListener('popstate', async () => {
     const urlPath = window.location.pathname;
@@ -197,10 +207,7 @@ export default function App($app) {
   const init = async () => {
    const path = this.state.currentPage;
    
-    if (path.startsWith("/city/")) {
-     
-      render();
-   } else {
+    if (!path.startsWith("/city/")) {
       const cities = await request(
         this.state.startIdx,
         this.state.region,
@@ -211,7 +218,10 @@ export default function App($app) {
         ...this.state,
         cities: cities,
       });
-   }
+    } //상세 페이지
+    else {
+      render();
+    }
   };
 
   init();

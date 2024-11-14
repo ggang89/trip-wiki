@@ -8,7 +8,6 @@ export default function CityList({ $app, initialState,handleLoadMore,handleItemC
   $app.appendChild(this.$target);
   
   this.template = () => {
-
     let temp = `<div class="city-items-container">`;
     if (this.state) {
       this.state.cities.forEach((element) => {
@@ -30,7 +29,8 @@ export default function CityList({ $app, initialState,handleLoadMore,handleItemC
       e.addEventListener('click', () => {
         this.handleItemClick(e.id);
       })
-    })
+    });
+    
     //더 불러올 데이터가 있으면
     if (!this.state.isEnd) {
       const $loadMoreButton = document.createElement("button");

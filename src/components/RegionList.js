@@ -28,9 +28,9 @@ export default function RegionList({ $app, initialState, handleRegion }) {
 
   this.render = () => {
     this.$target.innerHTML = this.template();
-    let $currentRegion;
+    
     if (this.state) {
-      $currentRegion = document.getElementById(this.state);
+     let $currentRegion = document.getElementById(this.state);
 
       //currentRegion값이 존재하면 그 값에 clicked 추가
       $currentRegion && ($currentRegion.className = "clicked");
